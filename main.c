@@ -89,7 +89,7 @@ int main(int argc, char* argv[])
     {
         {CUSTOM_2_ERROR, "Description of custom error 2"},
         {CUSTOM_1_ERROR, "Description of custom error 1"},
-        {INTERNAL_ERROR, 0}, // Not needed, strerror() substituted
+        {INTERNAL_ERROR, "Internal error"}, // strerror() substituted
         {INVALID_OPTION, "Invalid option"},
         {DONE, "No errors, all done"}, // Must be at end
     };

@@ -12,13 +12,10 @@ Options is another lightweight library for processing command line arguments. It
 
 See *main.c* to understand how to use the library.
 
-Call:
+Example:
 ```
 options -ha --delta=ARG -z ARG
-```
 
-Output:
-```
 Option, version 1.00
 Synopsis:
 	option [OPTIONS] FILES
@@ -60,7 +57,7 @@ Options:
 Return results:
 4	Description of custom error 2
 3	Description of custom error 1
-2	(null)
+2	Internal error
 1	Invalid option
 0	No errors, all done
 
