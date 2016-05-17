@@ -37,7 +37,7 @@ enum state
     SHORT_ARGUMENT_STATE,
     DASH_DASH_STATE,
     LONG_OPTION_STATE,
-    LONG_ARGUMNET_STATE,
+    LONG_ARGUMENT_STATE,
     OPERAND_STATE,
     FORSED_OPERAND_STATE,
     FAIL_STATE
@@ -121,7 +121,7 @@ static enum state done(enum state state)
 
 static enum state invoke(struct context *context, const char *p, enum state state)
 {
-    int result = 0;
+    int result = INVALID_OPTION;
     switch (context->option->role)
     {
     case PLAIN_OPTION:
@@ -212,17 +212,17 @@ static enum state process(struct context *context, enum state state, const char 
 
     case LONG_OPTION_STATE:
         if (*p == null && has_option(context, p, as_long_option))
-            return has_argument(context) ? clean(context, LONG_ARGUMNET_STATE) : invoke(context, p, ENTRY_STATE);
+            return has_argument(context) ? clean(context, LONG_ARGUMENT_STATE) : invoke(context, p, ENTRY_STATE);
         if (*p == equal && has_option(context, p, as_long_option))
-            return has_argument(context) ? clean(context, LONG_ARGUMNET_STATE) : invalid(context, p);
+            return has_argument(context) ? clean(context, LONG_ARGUMENT_STATE) : invalid(context, p);
         if (isalnum(*p))
             return LONG_OPTION_STATE;
         break;
 
-    case LONG_ARGUMNET_STATE:
+    case LONG_ARGUMENT_STATE:
         if (*p == null)
             return invoke(context, p, ENTRY_STATE);
-        return LONG_ARGUMNET_STATE;
+        return LONG_ARGUMENT_STATE;
 
     case OPERAND_STATE:
     case FORSED_OPERAND_STATE:
@@ -248,7 +248,7 @@ int invoke_options(const char *synopsis, const struct option options[], const st
         p = *p ? p + 1 : (argc--, *++argv);
     }
 
-    if ((state == LONG_ARGUMNET_STATE) || (state == SHORT_ARGUMENT_STATE))
+    if ((state == LONG_ARGUMENT_STATE) || (state == SHORT_ARGUMENT_STATE))
         process(&context, state, "");
 
     return context.result;
