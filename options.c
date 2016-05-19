@@ -68,10 +68,12 @@ static int as_short_option(const struct option *option, const char *p, int lengt
 static int has_option(struct context *context, const char *p, match_t match)
 {
     const struct option *option = context->options;
+
     while (option->role != OTHER_OPTION)
     {
         if (match(option, context->s, p - context->s))
             break;
+
         option++;
     }
 
@@ -82,6 +84,7 @@ static int has_option(struct context *context, const char *p, match_t match)
 static int has_other_option(struct context *context)
 {
     const struct option *option = context->options;
+
     while (option->role != OTHER_OPTION)
         option++;
 
@@ -98,7 +101,9 @@ static enum state fail(struct context *context, int result)
 {
     const struct error *error = context->errors;
     const char *usage = "Unexpected error";
+
     context->result = result;
+
     while (error->result)
     {
         if (result == error->result)
@@ -122,6 +127,7 @@ static enum state done(enum state state)
 static enum state invoke(struct context *context, const char *p, enum state state)
 {
     int result = INVALID_OPTION;
+
     switch (context->option->role)
     {
     case PLAIN_OPTION:
@@ -151,12 +157,14 @@ static enum state invoke(struct context *context, const char *p, enum state stat
 static enum state invalid(struct context *context, const char *p)
 {
     fprintf(stdout, TTY_NONE "Processing \"%*s\"...", (int)(p - context->s), context->s);
+
     return fail(context, INVALID_OPTION);
 }
 
 static enum state clean(struct context *context, enum state state)
 {
     context->s = 0;
+
     return state;
 }
 
@@ -171,68 +179,85 @@ static enum state process(struct context *context, enum state state, const char 
     const char dash = '-';
     const char equal = '=';
     const char null = 0;
+
     collect(context, p);
+
     switch (state)
     {
     case ENTRY_STATE:
         if (*p == dash)
             return clean(context, DASH_STATE);
+
         return OPERAND_STATE;
 
     case DASH_STATE:
         if (*p == dash)
             return clean(context, DASH_DASH_STATE);
+
         if (isalnum(*p) && has_option(context, p + 1, as_short_option))
             return has_argument(context) ? clean(context, BEFORE_SHORT_ARGUMENT_STATE) : invoke(context, p, SHORT_OPTION_STATE);
+
         break;
 
     case SHORT_OPTION_STATE:
         if (*p == null)
             return clean(context, ENTRY_STATE);
+
         if (isalnum(*p) && has_option(context, p + 1, as_short_option))
             return has_argument(context) ? invalid(context, p) : invoke(context, p, SHORT_OPTION_STATE);
+
         break;
 
     case BEFORE_SHORT_ARGUMENT_STATE:
         if (*p == null)
             return clean(context, SHORT_ARGUMENT_STATE);
+
         return SHORT_ARGUMENT_STATE;
 
     case SHORT_ARGUMENT_STATE:
         if (*p == null)
             return invoke(context, p, ENTRY_STATE);
+
         return SHORT_ARGUMENT_STATE;
 
     case DASH_DASH_STATE:
         if (*p == null)
             return clean(context, FORSED_OPERAND_STATE);
+
         if (isalnum(*p))
             return LONG_OPTION_STATE;
+
         break;
 
     case LONG_OPTION_STATE:
         if (*p == null && has_option(context, p, as_long_option))
             return has_argument(context) ? clean(context, LONG_ARGUMENT_STATE) : invoke(context, p, ENTRY_STATE);
+
         if (*p == equal && has_option(context, p, as_long_option))
             return has_argument(context) ? clean(context, LONG_ARGUMENT_STATE) : invalid(context, p);
+
         if (isalnum(*p))
             return LONG_OPTION_STATE;
+
         break;
 
     case LONG_ARGUMENT_STATE:
         if (*p == null)
             return invoke(context, p, ENTRY_STATE);
+
         return LONG_ARGUMENT_STATE;
 
     case OPERAND_STATE:
     case FORSED_OPERAND_STATE:
         if (*p == null)
             return has_other_option(context) ? invoke(context, p, state == OPERAND_STATE ? ENTRY_STATE : state) : invalid(context, p);
+
         return state;
 
     default:
         break;
     }
+
     return invalid(context, p);
 }
 
@@ -241,10 +266,12 @@ int invoke_options(const char *synopsis, const struct option options[], const st
     struct context context = {synopsis, options, errors, 0, 0, 0};
     enum state state = ENTRY_STATE;
     const char *p = (argc--, *++argv);
+
     while (argc)
     {
         if ((state = process(&context, state, p)) == FAIL_STATE)
             break;
+
         p = *p ? p + 1 : (argc--, *++argv);
     }
 
@@ -258,6 +285,7 @@ static void usage(FILE *file, const char *p, int width)
 {
     const char *s = p;
     int column = 0;
+
     while (*p)
     {
         if (isspace(*p))
@@ -288,10 +316,11 @@ int usage_options(const char *synopsis, const struct option options[], const str
 {
     const struct option *option = options;
     const struct error *error = errors;
+
     fprintf(stdout, TTY_NONE "Synopsis:\n");
     fprintf(stdout, TTY_NONE "\t%s\n\n", synopsis);
-
     fprintf(stdout, TTY_NONE "Options:\n");
+
     while (option->role != OTHER_OPTION)
     {
         if (option->short_name && option->long_name)
@@ -302,6 +331,7 @@ int usage_options(const char *synopsis, const struct option options[], const str
         {
             if (option->short_name)
                 fprintf(stdout, TTY_BOLD "-%s", option->short_name);
+
             if (option->long_name)
                 fprintf(stdout, TTY_BOLD "--%s", option->long_name);
         }
@@ -312,6 +342,7 @@ int usage_options(const char *synopsis, const struct option options[], const str
     }
 
     fprintf(stdout, TTY_NONE "Return results:\n");
+
     while (error->result)
     {
         fprintf(stdout, TTY_UNLN "%d" TTY_NONE "\t%s\n", error->result, error->usage);
