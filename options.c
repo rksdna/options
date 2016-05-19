@@ -157,14 +157,12 @@ static enum state invoke(struct context *context, const char *p, enum state stat
 static enum state invalid(struct context *context, const char *p)
 {
     fprintf(stdout, TTY_NONE "Processing \"%*s\"...", (int)(p - context->s), context->s);
-
     return fail(context, INVALID_OPTION);
 }
 
 static enum state clean(struct context *context, enum state state)
 {
     context->s = 0;
-
     return state;
 }
 
