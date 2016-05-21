@@ -36,8 +36,7 @@ CC = gcc
 CP = cp
 RM = rm -f
 
-BUILD = $(shell svnversion -n)
-CFLAGS = -Wall -Wno-parentheses -Os -MD
+CFLAGS = -Wall -MD
 LFLAGS =
 
 -include $(DEP)
