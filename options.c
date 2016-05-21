@@ -234,7 +234,7 @@ static enum state process(struct context *context, enum state state, const char 
         if (*p == equal && has_option(context, p, as_long_option))
             return has_argument(context) ? clean(context, LONG_ARGUMENT_STATE) : invalid(context, p);
 
-        if (isalnum(*p))
+        if (isalnum(*p) || ispunct(*p))
             return LONG_OPTION_STATE;
 
         break;
@@ -339,7 +339,7 @@ int usage_options(const char *synopsis, const struct option options[], const str
         option++;
     }
 
-    fprintf(stdout, TTY_NONE "Return results:\n");
+    fprintf(stdout, TTY_NONE "Return values:\n");
 
     while (error->result)
     {

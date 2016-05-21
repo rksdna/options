@@ -54,7 +54,7 @@ Options:
 -h, --help
 	Print this help
 
-Return results:
+Return values:
 4	Description of custom error 2
 3	Description of custom error 1
 2	Internal error
